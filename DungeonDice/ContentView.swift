@@ -25,12 +25,6 @@ struct ContentView: View {
     @State private var resultMessage = ""
     @State private var players = ["Elle", "Mike", "Will", "Lucas", "Sam", "Dustin", "Mike", "Sam", "Will"]
 
-    @State private var gridItems = [
-        GridItem(.fixed(120)),
-        GridItem(.fixed(120)),
-        GridItem(.fixed(120)),
-    ]
-
     var body: some View {
         VStack {
             Text("Dungeon Dice")
@@ -48,7 +42,7 @@ struct ContentView: View {
 
             Spacer()
 
-            LazyVGrid(columns: gridItems) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 102))]) {
                 ForEach(Dice.allCases, id: \.self) { dice in
                     Button("\(dice.rawValue)-sided") {
                         resultMessage = "You rolled a \(dice.roll()) on a \(dice.rawValue)-sided dice"
@@ -59,15 +53,6 @@ struct ContentView: View {
                 }
             .padding()
             }
-
-//            ForEach(Dice.allCases, id: \.self) { dice in
-//                Button("\(dice.rawValue)-sided") {
-//                    resultMessage = "You rolled a \(dice.roll()) on a \(dice.rawValue)-sided dice"
-//                }                }
-//            .buttonStyle(.borderedProminent)
-//            .tint(.red)
-//        }
-//        .padding()
     }
 }
 
