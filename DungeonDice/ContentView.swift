@@ -33,21 +33,14 @@ struct ContentView: View {
     var body: some View {
         GeometryReader() { geo in
             VStack {
-                Text("Dungeon Dice")
-                    .font(.largeTitle)
-                    .fontWeight(.black)
-                    .foregroundStyle(.red)
-                
+                titleView
+
                 Spacer()
-                
-                Text(resultMessage)
-                    .font(.largeTitle)
-                    .fontWeight(.medium)
-                    .multilineTextAlignment(.center)
-                    .frame(height: 150)
-                
+
+                resultMessageView
+
                 Spacer()
-                
+
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: buttonWidth), spacing: spacing)]) {
                     ForEach(Dice.allCases.dropLast(buttonsLeftOver), id: \.self) { dice in
                         Button("\(dice.rawValue)-sided") {
@@ -72,16 +65,16 @@ struct ContentView: View {
             }
             .padding()
             .onChange(of: geo.size.width) {
-                arrangeGridItems(geo: geo)
+                arrangeGridItems(deviceWidth: geo.size.width)
             }
             .onAppear {
-                arrangeGridItems(geo: geo)
+                arrangeGridItems(deviceWidth: geo.size.width)
             }
         }
     }
 
-    func arrangeGridItems(geo: GeometryProxy) {
-        var screenWidth = geo.size.width - horizontalPadding*2 // spacing on both sides
+    func arrangeGridItems(deviceWidth: CGFloat) {
+        var screenWidth = deviceWidth - horizontalPadding*2 // spacing on both sides
         if Dice.allCases.count > 1 {
             screenWidth += spacing
         }
@@ -89,6 +82,23 @@ struct ContentView: View {
         // calculate numberOfButtonsPerRow as Int
         let numberOfButtonsPerRow = Int(screenWidth) / Int(buttonWidth + spacing)
         buttonsLeftOver = Dice.allCases.count % numberOfButtonsPerRow
+    }
+}
+
+extension ContentView {
+    private var titleView: some View {
+        Text("Dungeon Dice")
+            .font(.largeTitle)
+            .fontWeight(.black)
+            .foregroundStyle(.red)
+    }
+
+    private var resultMessageView: some View {
+        Text(resultMessage)
+            .font(.largeTitle)
+            .fontWeight(.medium)
+            .multilineTextAlignment(.center)
+            .frame(height: 150)
     }
 }
 
