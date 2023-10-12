@@ -21,38 +21,74 @@ struct ContentView: View {
             return Int.random(in: 1...rawValue)
         }
     }
-
+    
     @State private var resultMessage = ""
-    @State private var players = ["Elle", "Mike", "Will", "Lucas", "Sam", "Dustin", "Mike", "Sam", "Will"]
+    @State private var buttonsLeftOver = 0 // # of buttons in a less-than-full row
+
+    let horizontalPadding: CGFloat = 16
+    let spacing: CGFloat = 0 // between buttons
+    let buttonWidth: CGFloat = 102
+    
 
     var body: some View {
-        VStack {
-            Text("Dungeon Dice")
-                .font(.largeTitle)
-                .fontWeight(.black)
-                .foregroundStyle(.red)
-
-            Spacer()
-
-            Text(resultMessage)
-                .font(.largeTitle)
-                .fontWeight(.medium)
-                .multilineTextAlignment(.center)
-                .frame(height: 150)
-
-            Spacer()
-
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 102))]) {
-                ForEach(Dice.allCases, id: \.self) { dice in
-                    Button("\(dice.rawValue)-sided") {
-                        resultMessage = "You rolled a \(dice.roll()) on a \(dice.rawValue)-sided dice"
+        GeometryReader() { geo in
+            VStack {
+                Text("Dungeon Dice")
+                    .font(.largeTitle)
+                    .fontWeight(.black)
+                    .foregroundStyle(.red)
+                
+                Spacer()
+                
+                Text(resultMessage)
+                    .font(.largeTitle)
+                    .fontWeight(.medium)
+                    .multilineTextAlignment(.center)
+                    .frame(height: 150)
+                
+                Spacer()
+                
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: buttonWidth), spacing: spacing)]) {
+                    ForEach(Dice.allCases.dropLast(buttonsLeftOver), id: \.self) { dice in
+                        Button("\(dice.rawValue)-sided") {
+                            resultMessage = "You rolled a \(dice.roll()) on a \(dice.rawValue)-sided dice"
+                        }
+                        .frame(width: buttonWidth)
                     }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(.red)
+
+                HStack {
+                    ForEach(Dice.allCases.suffix(buttonsLeftOver), id: \.self) { dice in
+                        Button("\(dice.rawValue)-sided") {
+                            resultMessage = "You rolled a \(dice.roll()) on a \(dice.rawValue)-sided dice"
+                        }
+                        .frame(width: buttonWidth)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
                 }
-            .padding()
             }
+            .padding()
+            .onChange(of: geo.size.width) {
+                arrangeGridItems(geo: geo)
+            }
+            .onAppear {
+                arrangeGridItems(geo: geo)
+            }
+        }
+    }
+
+    func arrangeGridItems(geo: GeometryProxy) {
+        var screenWidth = geo.size.width - horizontalPadding*2 // spacing on both sides
+        if Dice.allCases.count > 1 {
+            screenWidth += spacing
+        }
+
+        // calculate numberOfButtonsPerRow as Int
+        let numberOfButtonsPerRow = Int(screenWidth) / Int(buttonWidth + spacing)
+        buttonsLeftOver = Dice.allCases.count % numberOfButtonsPerRow
     }
 }
 
